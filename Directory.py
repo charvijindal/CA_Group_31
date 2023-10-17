@@ -3,9 +3,11 @@ class Directory:
         self.dir = {}
         self.main_memory = main_memory
 
-        for i in self.main_memory.keys():
+        for i in self.main_memory.main_memory.keys():
             self.dir[i] = "10000" # state (2) | owner (1) | sharer list (2)
-    
+        
+        print(self.dir)
+
     def set_dir(self, addr, state: str, owner: str, sharer_list: str) -> None:
         
         final_state = ""
@@ -21,7 +23,7 @@ class Directory:
         self.dir[addr] = final_state + owner + sharer_list
     
     def get_dir(self, addr):
-        val = self.dir[addr]
+        val = self.dir[int(addr)]
         state = val[:2]
         final_state = ""
 

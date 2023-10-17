@@ -5,9 +5,9 @@ from directory import Directory
 def main():
 
     memory = Memory()
-    core1 = Core()
-    core2 = Core()
-    directory = Directory()
+    core1 = Core(0)
+    core2 = Core(1)
+    directory = Directory(memory)
 
     instructions = []
     

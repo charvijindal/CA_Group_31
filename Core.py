@@ -24,9 +24,12 @@ class Cache:
     
     def change_state(self, addr, state):
         #change the state of the cache address
-        curr = self.cache_memory[addr]
-        new_val = [state, curr[1]]
-        self.cache_memory[addr] = new_val
+        if addr in self.cache_memory:
+            curr = self.cache_memory[addr]
+            new_val = [state, curr[1]]
+            self.cache_memory[addr] = new_val
+        else:
+            self.cache_memory[addr] = [state, 0]
     
 
 class Core:
