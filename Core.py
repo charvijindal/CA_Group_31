@@ -21,6 +21,13 @@ class Cache:
     def get_from_cache(self, addr):
         # Get value from cache if present, otherwise return None
         return self.cache_memory.get(addr, None)
+    
+    def change_state(self, addr, state):
+        #change the state of the cache address
+        curr = self.cache_memory[addr]
+        new_val = [state, curr[1]]
+        self.cache_memory[addr] = new_val
+    
 
 class Core:
     def __init__(self, id: int) -> None:
@@ -61,18 +68,35 @@ class Core:
                 sharer_list = "10" if self.id == "0" else "01"
                 directory.set_dir(inst[2], "S", str(self.id), sharer_list)
                 self.cache.add_to_cache(inst[2], "S", value)
-                
+
             else:
                 print("Invalid state")
                 return
 
         elif inst[1] == "LM":
             if state == "M":
-                
-            elif state == "S":
-                
-            elif state == "I":
+                if sharer_list.index("1") == self.id:
+                    value = self.core.get_from_cache()
+                    memory.set_value(int(inst[2]), int(value))
+                else:
+                    value = core.get_from_cache()
+                    memory.set_value(int(inst[2]), int(value))
+                    self.cache.add_to_cache()
+                sharer_list = "10" if self.id == "0" else "01"
+                directory.set_dir(inst[2], "M", str(self.id), sharer_list)
 
+            elif state == "S":
+                for i, c in enumerate(sharer_list):
+                    if c == "1" and i != self.id:
+                        core.cache.change_state(inst[2], "I")
+                self.cache.change_state(inst[2], "M")
+                sharer_list = sharer_list[:self.id] + "1" + sharer_list[self.id+1:]
+                directory.set_dir(inst[2], "M", str(self.id), sharer_list)
+
+            elif state == "I":
+                self.cache.change_state(inst[2], "M")
+                sharer_list = sharer_list[:self.id] + "1" + sharer_list[self.id+1:]
+                directory.set_dir(inst[2], "M", str(self.id), sharer_list) 
 
             else:
                 print("Invalid state")
