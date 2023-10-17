@@ -31,11 +31,20 @@ class Cache:
         else:
             self.cache_memory[addr] = [state, 0]
     
+    def get_cache_dump(self):
+        return self.cache_memory
 
 class Core:
     def __init__(self, id: int) -> None:
         self.cache = Cache()
         self.id = id
+        self.cache_log = []
+
+    def print_directory_state(self, directory):
+        print("Directory State:")
+        for addr in directory.dir.keys():
+            print(f"Directory: {directory.dir[addr]}")
+
 
     def execute(self, inst, core, memory, directory):
         dir_res = directory.get_dir(inst[2])
@@ -159,4 +168,4 @@ class Core:
         else:
             print("Invalid instruction semantic")
 
-    
+        self.cache_log.append(self.cache.get_cache_dump())

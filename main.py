@@ -21,15 +21,19 @@ def main():
                 val[3] = val[3][:-1]
             instructions.append(val)   
 
-    for ins in instructions:
+    for line, ins in enumerate(instructions):
         if ins[0] == "0":
             core1.execute(ins, core2, memory, directory)
+            print(f"Cache Memory Dump for Core 0 after Instruction {line}: {core1.cache_log[-1]}")
         elif ins[0] == "1":
             core2.execute(ins, core1, memory, directory)
+            print(f"Cache Memory Dump for Core 1 after Instruction {line}: {core2.cache_log[-1]}")
         else:
             print("Invalid instruction")
             
     print(instructions)
+    for val in directory.dir.keys():
+        print(f"Directory: {directory.dir[val]}")
 
 if __name__ == "__main__":
     main()
