@@ -12,7 +12,7 @@ class Core:
         print(instruction)
         
         type_instruction = instruction[0]
-        address = instruction[1]
+        address = int(instruction[1])
         add_im = 0
         
         if type_instruction == "LS":
@@ -29,7 +29,7 @@ class Core:
             pass
         
         elif type_instruction == "ADD":
-            add_im = instruction[2]
+            add_im = int(instruction[2])
             #GetModified
             pass
             

@@ -25,5 +25,8 @@ class DirectoryController:
     #     self.dir[addr]['sharer_list'] = sharer_list
     
     def get_line(self, addr):
-        return self.directory.dir[int(addr)]
+        return self.directory.dir[addr]
+    
+    def set_line(self, line, addr):
+        self.directory.dir[addr] = line
 

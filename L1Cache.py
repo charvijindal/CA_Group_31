@@ -54,7 +54,7 @@ class L1CacheController:
     def getDirectory(self, addr):
         return self.interconnect.get_directoryLine(addr)
     
-    def read(self, addr):
+    def read(self, addr, token = 0):
         self.cache.access += 1
         ind = addr % len(self.cache.sets)
         tag = addr // len(self.cache.sets)
@@ -65,11 +65,13 @@ class L1CacheController:
         if line_index != -1:  # Cache hit
             self.cache.hits += 1
             return cache_set.cache_lines[line_index]['data']
+        elif token == 1:
+            return None
         else:  # Cache miss
             # Simulate fetching data from lower memory (not implemented)
             # data = f"Data from address {addr} in main memory"
             
-            data = self.interconnect.read_from_memory(addr) #TODO update main memory to global main
+            data = self.interconnect.read_from_memory(addr) 
 
             # Update cache with the fetched data using LRU policy
             line_index = self.cache.get_lru_index(cache_set)
@@ -99,20 +101,55 @@ class L1CacheController:
             cache_set.update(line_index, tag, data)
             # Simulate writing through to main memory
             self.interconnect.write_to_memory(addr,  data)  # Write to main memory immediately
+        return data
 
     def getShared(self, addr):
         line = self.getDirectory(addr)
         state = line['state']
         owner = line['owner']
-        print(line)
+        sharer_list = line['sharer_list']
+        # print(line)
+        # self.interconnect.test()
         if state != 2 and owner == self.num:
             return self.read(addr)
+        
+        elif state == 2:
+            line['state'] = 1
+            line['sharer_list'] = [0,0,0,0]
+            line['sharer_list'][self.num] = 1
+            self.interconnect.set_directoryLine(line)
+            value = self.interconnect.read_from_memory(addr)
+            return self.write(addr, value)
+            
+        elif state == 1:
+            sharer = line['sharer_list'].index(1)
+            value, from_core = self.interconnect.getValueFromCore(addr, sharer)
+            line['sharer_list'][self.num] = 1
+            self.interconnect.set_directoryLine(line)
+            return self.write(addr, value)
+            
+        elif state == 0:
+            value,from_core = self.interconnect.getValueFromCore(addr,owner)
+            line['state'] = 3
+            line['sharer_list'][self.num] = 1
+            self.interconnect.set_directoryLine(line)
+            return self.write(addr, value)
+
+        elif state == 3:
+            value,from_core = self.interconnect.getValueFromCore(addr,owner)
+            line['sharer_list'][self.num] = 1
+            self.interconnect.set_directoryLine(line)
+            return self.write(addr, value)
+            
 
     def getModified(self, addr, immediate = None):
         pass
     
     def putInvalid(self, addr):
-        pass
+        line = self.getDirectory(addr)
+        line['state'] = 2
+        line['sharer_list'] = [0,0,0,0]
+        self.interconnect.set_directoryLine(line, addr)
     
     
     

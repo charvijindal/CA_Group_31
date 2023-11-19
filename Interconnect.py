@@ -18,5 +18,19 @@ class Interconnect:
 
     def get_directoryLine(self, addr):
         return self.directory_controller.get_line(addr)
+    
+    def set_directoryLine(self, line, addr):
+        self.directory_controller.set_line(line, addr)
+        
+    def getValueFromCore(self, addr, owner):
+        value= self.cores[owner].cache_controller.read(addr, 1)
+        from_core = 1
+        if value is None:
+            value = self.read_from_memory(addr)
+            from_core = 0
+        return value, from_core
+        
+    # def test(self):
+    #     return self.cores[1].cache_controller.read(2)
 
 
