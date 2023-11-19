@@ -1,8 +1,8 @@
 from update_memory import read_memory, write_memory, inspect_memory
 
 class Interconnect:
-    def __init__(self) -> None:
-        pass
+    def __init__(self, directory_controller) -> None:
+        self.directory_controller = directory_controller
 
     def read_from_memory(self, addr):
         return read_memory(addr)

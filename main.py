@@ -5,7 +5,10 @@ from directory import DirectoryController
 def main():
 
     instructions = []
-    interconnect = Interconnect()
+
+    dir_control = DirectoryController()
+    interconnect = Interconnect(dir_control)
+    
     cores = [Core(interconnect, i) for i in range(4)]
 
     with open("instructions.txt", "r") as file:
