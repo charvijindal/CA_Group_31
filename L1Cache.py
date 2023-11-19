@@ -1,7 +1,7 @@
 import random
 
 # Global variable representing main memory
-main_memory = [random.randint(0, 20) for _ in range(4)]  # Populate main memory with random data
+main_memory = [random.randint(0, 20) for _ in range(10)]  # Populate main memory with random data
 
 class CacheSet:
     def __init__(self) -> None:
@@ -13,8 +13,10 @@ class CacheSet:
             if self.cache_lines[i] is not None and self.cache_lines[i]['tag'] == tag:
                 self.order.remove(i)
                 self.order.append(i)
+                print("order: ", self.order)
                 return i
         print("find:" ,self.cache_lines)
+        print("order: ", self.order)
         return -1
 
     def update(self, index, tag, data):
@@ -28,6 +30,8 @@ class CacheSet:
             self.order.append(index)
         self.cache_lines[index] = {'tag': tag, 'data': data}
         print("update", self.cache_lines)
+        print("order: ", self.order)
+        
 
 class L1Cache:
     def __init__(self, sets) -> None:
@@ -54,6 +58,7 @@ class L1Cache:
 
             # Update cache with the fetched data using LRU policy
             line_index = self.get_lru_index(cache_set)
+            print("lru addr: ", line_index)
             cache_set.update(line_index, tag, data)
             return data
 
@@ -68,7 +73,7 @@ class L1Cache:
         if line_index != -1:  # Cache hit
             cache_set.cache_lines[line_index]['data'] = data
             # Simulate writing through to main memory
-            
+            self.hits+=1
             #TODO make main memory global
             
             main_memory[addr] = data  # Write to main memory immediately
@@ -82,7 +87,10 @@ class L1Cache:
 
     def get_lru_index(self, cache_set):
         if len(cache_set.order) > 0:
-            return cache_set.order[0] if len(cache_set.order) == 1 else cache_set.order[1]
+            if len(cache_set.order) == 1:
+                return 1
+            else:
+                return cache_set.order[0]
         return 0  # Default to index 0 if order is empty
 
 class L1CacheController:
@@ -95,23 +103,23 @@ class L1CacheController:
     def write(self, addr, data):
         self.cache.write(addr, data)
 
-cache = L1Cache(4)
+cache = L1Cache(2)
 
 # Create an instance of L1CacheController
 cache_controller = L1CacheController(cache)
 
 # Read and write operations for testing
 for i in range(10):
-    address = random.randint(0, 3)
+    address = random.randint(0, 9)
     data = random.randint(0, 20)
     print(f"Performing read from address {address}:")
     print("Data read:", cache_controller.read(address))
     print("Main: ", main_memory)
     print()
-    print(f"Performing write to address {address}:")
-    cache_controller.write(address, data)
-    print("Main after write: ", main_memory)
-    print()
+    # print(f"Performing write to address {address}:")
+    # cache_controller.write(address, data)
+    # print("Main after write: ", main_memory)
+    # print()
 # Access cache hits and misses directly through the cache instance
 print("Cache hits:", cache.hits)
 print("Cache access:", cache.access)
