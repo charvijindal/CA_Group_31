@@ -1,5 +1,6 @@
 from Core import Core
 from Interconnect import Interconnect
+from directory import DirectoryController
 
 def main():
 
