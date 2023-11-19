@@ -1,7 +1,5 @@
 import random
-
-# Global variable representing main memory
-main_memory = [random.randint(0, 20) for _ in range(10)]  # Populate main memory with random data
+from update_memory import read_memory, write_memory, inspect_memory
 
 class CacheSet:
     def __init__(self) -> None:
@@ -54,7 +52,7 @@ class L1Cache:
             # Simulate fetching data from lower memory (not implemented)
             # data = f"Data from address {addr} in main memory"
             
-            data = main_memory[addr] #TODO update main memory to global main
+            data = read_memory(addr) #TODO update main memory to global main
 
             # Update cache with the fetched data using LRU policy
             line_index = self.get_lru_index(cache_set)
@@ -76,14 +74,14 @@ class L1Cache:
             self.hits+=1
             #TODO make main memory global
             
-            main_memory[addr] = data  # Write to main memory immediately
+            write_memory(addr, data)  # Write to main memory immediately
         else:  # Cache miss
             # Simulate fetching data from lower memory (not implemented)
             # Update cache with the fetched data using LRU policy
             line_index = self.get_lru_index(cache_set)
             cache_set.update(line_index, tag, data)
             # Simulate writing through to main memory
-            main_memory[addr] = data  # Write to main memory immediately
+            write_memory(addr, data)  # Write to main memory immediately
 
     def get_lru_index(self, cache_set):
         if len(cache_set.order) > 0:
@@ -103,24 +101,24 @@ class L1CacheController:
     def write(self, addr, data):
         self.cache.write(addr, data)
 
-cache = L1Cache(2)
+# cache = L1Cache(2)
 
-# Create an instance of L1CacheController
-cache_controller = L1CacheController(cache)
+# # Create an instance of L1CacheController
+# cache_controller = L1CacheController(cache)
 
-# Read and write operations for testing
-for i in range(10):
-    address = random.randint(0, 9)
-    data = random.randint(0, 20)
-    print(f"Performing read from address {address}:")
-    print("Data read:", cache_controller.read(address))
-    print("Main: ", main_memory)
-    print()
-    # print(f"Performing write to address {address}:")
-    # cache_controller.write(address, data)
-    # print("Main after write: ", main_memory)
-    # print()
-# Access cache hits and misses directly through the cache instance
-print("Cache hits:", cache.hits)
-print("Cache access:", cache.access)
-print("Cache misses:", cache.access - cache.hits)
+# # Read and write operations for testing
+# for i in range(20):
+#     address = random.randint(0, 63)
+#     data = random.randint(0, 256)
+#     print(f"Performing read from address {address}:")
+#     print("Data read:", cache_controller.read(address))
+#     print("Main: ", inspect_memory())
+#     print()
+#     print(f"Performing write to address {address}:")
+#     cache_controller.write(address, data)
+#     print("Main after write: ", inspect_memory())
+#     print()
+# # Access cache hits and misses directly through the cache instance
+# print("Cache hits:", cache.hits)
+# print("Cache access:", cache.access)
+# print("Cache misses:", cache.access - cache.hits)

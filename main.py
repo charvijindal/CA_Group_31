@@ -1,18 +1,26 @@
-# main_program.py
+from Core import Core
+from Interconnect import Interconnect
 
-from module1 import read_memory, write_memory
-from module2 import inspect_memory, clear_memory
+def main():
 
-# Access and modify shared memory using module1
-write_memory(3, 42)
-print(read_memory(3))  # Output: 42
+    instructions = []
+    interconnect = Interconnect()
+    cores = [Core(interconnect) for _ in range(4)]
 
-# Access shared memory using module2
-print(inspect_memory())  # Output: [0, 0, 0, 42, 0, ...]
+    with open("instructions.txt", "r") as file:
+        lines = file.readlines()
+        for i in lines:
+            val = i.split(" ")
+            if len(val) == 3:
+                val[2] = val[2][:-1]
+            else:
+                val[3] = val[3][:-1]
+            instructions.append(val)   
+    
+    for ins in instructions:
+        core = int(ins[0])
+        print(core)
+        cores[core].interpret_instruction(ins[1:])
 
-# Modify shared memory using module2
-clear_memory()
-print(inspect_memory())  # Output: [0, 0, 0, 0, 0, ...]
-
-write_memory(1, 1000)
-print(inspect_memory())
+if __name__ == '__main__':
+    main()
