@@ -43,10 +43,17 @@ class L1Cache:
         return 0  # Default to index 0 if order is empty
 
 class L1CacheController:
-    def __init__(self, interconnect):
+    def __init__(self, interconnect, num):
         self.cache = L1Cache(2)
         self.interconnect = interconnect
-
+        self.num = num
+        
+    def setCacheControllerInterconnect(self, interconnect):
+        self.interconnect = interconnect
+    
+    def getDirectory(self, addr):
+        return self.interconnect.get_directoryLine(addr)
+    
     def read(self, addr):
         self.cache.access += 1
         ind = addr % len(self.cache.sets)
@@ -94,10 +101,18 @@ class L1CacheController:
             self.interconnect.write_to_memory(addr,  data)  # Write to main memory immediately
 
     def getShared(self, addr):
-        pass
+        line = self.getDirectory(addr)
+        state = line['state']
+        owner = line['owner']
+        print(line)
+        if state != 2 and owner == self.num:
+            return self.read(addr)
 
     def getModified(self, addr, immediate = None):
         pass
     
     def putInvalid(self, addr):
         pass
+    
+    
+    

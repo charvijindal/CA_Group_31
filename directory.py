@@ -4,23 +4,26 @@ class Directory:
 
 class DirectoryController:
     def __init__(self) -> None:
-        self.dir = Directory()
+        self.directory = Directory()
 
-    def get_state(self, addr):
-        return self.dir[addr]['state']
+    # def get_state(self, addr):
+    #     return self.dir[addr]['state']
     
-    def get_owner(self, addr):
-        return self.dir[addr]['owner']
+    # def get_owner(self, addr):
+    #     return self.dir[addr]['owner']
     
-    def get_sharer_list(self, addr):
-        return self.dir[addr]['sharer_list']
+    # def get_sharer_list(self, addr):
+    #     return self.dir[addr]['sharer_list']
 
-    def set_state(self, addr, state):
-        self.dir[addr]['state'] = state
+    # def set_state(self, addr, state):
+    #     self.dir[addr]['state'] = state
 
-    def set_owner(self, addr, owner):
-        self.dir[addr]['owner'] = owner
+    # def set_owner(self, addr, owner):
+    #     self.dir[addr]['owner'] = owner
     
-    def set_sharer_list(self, addr, sharer_list):
-        self.dir[addr]['sharer_list'] = sharer_list
+    # def set_sharer_list(self, addr, sharer_list):
+    #     self.dir[addr]['sharer_list'] = sharer_list
+    
+    def get_line(self, addr):
+        return self.directory.dir[int(addr)]
 

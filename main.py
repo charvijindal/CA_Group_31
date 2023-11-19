@@ -7,9 +7,10 @@ def main():
     instructions = []
 
     dir_control = DirectoryController()
-    interconnect = Interconnect(dir_control)
     
-    cores = [Core(interconnect, i) for i in range(4)]
+    cores = [Core(None, i) for i in range(4)]
+    
+    interconnect = Interconnect(dir_control, cores)
 
     with open("instructions.txt", "r") as file:
         lines = file.readlines()
