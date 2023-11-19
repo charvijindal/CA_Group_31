@@ -1,6 +1,3 @@
-import random
-from update_memory import read_memory, write_memory, inspect_memory
-
 class CacheSet:
     def __init__(self) -> None:
         self.cache_lines = [None, None]  # 2-way set associative
@@ -37,52 +34,6 @@ class L1Cache:
         self.hits = 0
         self.access = 0
 
-    def read(self, addr):
-        self.access += 1
-        ind = addr % len(self.sets)
-        tag = addr // len(self.sets)
-
-        cache_set = self.sets[ind]
-        line_index = cache_set.find(tag)
-
-        if line_index != -1:  # Cache hit
-            self.hits += 1
-            return cache_set.cache_lines[line_index]['data']
-        else:  # Cache miss
-            # Simulate fetching data from lower memory (not implemented)
-            # data = f"Data from address {addr} in main memory"
-            
-            data = read_memory(addr) #TODO update main memory to global main
-
-            # Update cache with the fetched data using LRU policy
-            line_index = self.get_lru_index(cache_set)
-            print("lru addr: ", line_index)
-            cache_set.update(line_index, tag, data)
-            return data
-
-    def write(self, addr, data):
-        self.access += 1
-        ind = addr % len(self.sets)
-        tag = addr // len(self.sets)
-
-        cache_set = self.sets[ind]
-        line_index = cache_set.find(tag)
-
-        if line_index != -1:  # Cache hit
-            cache_set.cache_lines[line_index]['data'] = data
-            # Simulate writing through to main memory
-            self.hits+=1
-            #TODO make main memory global
-            
-            write_memory(addr, data)  # Write to main memory immediately
-        else:  # Cache miss
-            # Simulate fetching data from lower memory (not implemented)
-            # Update cache with the fetched data using LRU policy
-            line_index = self.get_lru_index(cache_set)
-            cache_set.update(line_index, tag, data)
-            # Simulate writing through to main memory
-            write_memory(addr, data)  # Write to main memory immediately
-
     def get_lru_index(self, cache_set):
         if len(cache_set.order) > 0:
             if len(cache_set.order) == 1:
@@ -92,33 +43,52 @@ class L1Cache:
         return 0  # Default to index 0 if order is empty
 
 class L1CacheController:
-    def __init__(self, cache):
-        self.cache = cache
+    def __init__(self, interconnect):
+        self.cache = L1Cache(2)
+        self.interconnect = interconnect
 
     def read(self, addr):
-        return self.cache.read(addr)
+        self.cache.access += 1
+        ind = addr % len(self.cache.sets)
+        tag = addr // len(self.cache.sets)
 
+        cache_set = self.cache.sets[ind]
+        line_index = cache_set.find(tag)
+
+        if line_index != -1:  # Cache hit
+            self.cache.hits += 1
+            return cache_set.cache_lines[line_index]['data']
+        else:  # Cache miss
+            # Simulate fetching data from lower memory (not implemented)
+            # data = f"Data from address {addr} in main memory"
+            
+            data = self.interconnect.read_from_memory(addr) #TODO update main memory to global main
+
+            # Update cache with the fetched data using LRU policy
+            line_index = self.cache.get_lru_index(cache_set)
+            print("lru addr: ", line_index)
+            cache_set.update(line_index, tag, data)
+            return data
+        
     def write(self, addr, data):
-        self.cache.write(addr, data)
+        self.cache.access += 1
+        ind = addr % len(self.cache.sets)
+        tag = addr // len(self.cache.sets)
 
-# cache = L1Cache(2)
+        cache_set = self.cache.sets[ind]
+        line_index = cache_set.find(tag)
 
-# # Create an instance of L1CacheController
-# cache_controller = L1CacheController(cache)
-
-# # Read and write operations for testing
-# for i in range(20):
-#     address = random.randint(0, 63)
-#     data = random.randint(0, 256)
-#     print(f"Performing read from address {address}:")
-#     print("Data read:", cache_controller.read(address))
-#     print("Main: ", inspect_memory())
-#     print()
-#     print(f"Performing write to address {address}:")
-#     cache_controller.write(address, data)
-#     print("Main after write: ", inspect_memory())
-#     print()
-# # Access cache hits and misses directly through the cache instance
-# print("Cache hits:", cache.hits)
-# print("Cache access:", cache.access)
-# print("Cache misses:", cache.access - cache.hits)
+        if line_index != -1:  # Cache hit
+            cache_set.cache_lines[line_index]['data'] = data
+            # Simulate writing through to main memory
+            self.cache.hits+=1
+            #TODO make main memory global
+            
+            self.interconnect.write_to_memory(addr,  data)  # Write to main memory immediately
+        else:  # Cache miss
+            # Simulate fetching data from lower memory (not implemented)
+            # Update cache with the fetched data using LRU policy
+            line_index = self.cache.get_lru_index(cache_set)
+            cache_set.update(line_index, tag, data)
+            # Simulate writing through to main memory
+            self.interconnect.write_to_memory(addr,  data)  # Write to main memory immediately
