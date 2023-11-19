@@ -6,7 +6,7 @@ def main():
 
     instructions = []
     interconnect = Interconnect()
-    cores = [Core(interconnect) for _ in range(4)]
+    cores = [Core(interconnect, i) for i in range(4)]
 
     with open("instructions.txt", "r") as file:
         lines = file.readlines()

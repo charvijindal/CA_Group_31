@@ -92,3 +92,9 @@ class L1CacheController:
             cache_set.update(line_index, tag, data)
             # Simulate writing through to main memory
             self.interconnect.write_to_memory(addr,  data)  # Write to main memory immediately
+
+    def getShared(self,addr):
+        
+    def getModified(self, addr, immediate = None)
+    
+    def 
