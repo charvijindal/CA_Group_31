@@ -117,7 +117,7 @@ class L1CacheController:
             line['state'] = 1
             line['sharer_list'] = [0,0,0,0]
             line['sharer_list'][self.num] = 1
-            self.interconnect.set_directoryLine(line)
+            self.interconnect.set_directoryLine(line, addr)
             value = self.interconnect.read_from_memory(addr)
             return self.write(addr, value)
             
@@ -125,25 +125,49 @@ class L1CacheController:
             sharer = line['sharer_list'].index(1)
             value, from_core = self.interconnect.getValueFromCore(addr, sharer)
             line['sharer_list'][self.num] = 1
-            self.interconnect.set_directoryLine(line)
+            self.interconnect.set_directoryLine(line, addr)
             return self.write(addr, value)
             
         elif state == 0:
             value,from_core = self.interconnect.getValueFromCore(addr,owner)
             line['state'] = 3
             line['sharer_list'][self.num] = 1
-            self.interconnect.set_directoryLine(line)
+            self.interconnect.set_directoryLine(line, addr)
             return self.write(addr, value)
 
         elif state == 3:
             value,from_core = self.interconnect.getValueFromCore(addr,owner)
             line['sharer_list'][self.num] = 1
-            self.interconnect.set_directoryLine(line)
+            self.interconnect.set_directoryLine(line, addr)
             return self.write(addr, value)
             
 
     def getModified(self, addr, immediate = None):
-        pass
+        line = self.getDirectory(addr)
+        state = line['state']
+        owner = line['owner']
+        sharer_list = line['sharer_list']
+        # print(line)
+        # self.interconnect.test()
+        
+        if owner == self.num and state == 0:
+            value = self.read(addr)
+            if immediate is not None:
+                value += immediate
+                self.write(addr, value)
+            return value
+        
+        else:
+            #Invalidating the directory entry before moving to modified
+            line['sharer_list'] = [0,0,0,0]
+            value = self.interconnect.read_from_memory(addr)
+            line['owner'] = self.num
+            line['state'] = 0
+            self.interconnect.set_directoryLine(line, addr)
+            if immediate is not None:
+                value += immediate
+                self.write(addr, value)
+            return value
     
     def putInvalid(self, addr):
         line = self.getDirectory(addr)

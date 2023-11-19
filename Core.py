@@ -22,16 +22,19 @@ class Core:
             
         elif type_instruction == "LM":
             #GetModified
-            pass
+            value = self.cache_controller.getModified(address)
+            print(value)
             
         elif type_instruction == "IN":
             #PutInvalid
-            pass
+            value = self.cache_controller.putInvalid(address)
+            print(value)
         
         elif type_instruction == "ADD":
             add_im = int(instruction[2])
             #GetModified
-            pass
+            value = self.cache_controller.getModified(address,add_im)
+            print(value)
             
         else:
             print("Invalid Instruction, moving on")
