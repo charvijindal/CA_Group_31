@@ -1,11 +1,4 @@
-class Memory:
-    def __init__(self) -> None:
-        self.main_memory = {}
-        for i in range(32):
-            self.main_memory[i] = 0
+# memory.py
 
-    def get_value(self, address: int) -> int:
-        return self.main_memory[address]
-
-    def set_value(self, address: int, value: int) -> None:
-        self.main_memory[address] = value
+# Define the shared memory array
+memory_array = [0] * 64  # Example: Creating an array of size 64 initialized with zeros

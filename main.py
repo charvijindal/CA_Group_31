@@ -1,39 +1,18 @@
-from memory import Memory
-from core import Core
-from directory import Directory
+# main_program.py
 
-def main():
+from module1 import read_memory, write_memory
+from module2 import inspect_memory, clear_memory
 
-    memory = Memory()
-    core1 = Core(0)
-    core2 = Core(1)
-    directory = Directory(memory)
+# Access and modify shared memory using module1
+write_memory(3, 42)
+print(read_memory(3))  # Output: 42
 
-    instructions = []
-    
-    with open("instructions.txt", "r") as file:
-        lines = file.readlines()
-        for i in lines:
-            val = i.split(" ")
-            if len(val) == 3:
-                val[2] = val[2][:-1]
-            else:
-                val[3] = val[3][:-1]
-            instructions.append(val)   
+# Access shared memory using module2
+print(inspect_memory())  # Output: [0, 0, 0, 42, 0, ...]
 
-    for line, ins in enumerate(instructions):
-        if ins[0] == "0":
-            core1.execute(ins, core2, memory, directory)
-            print(f"Cache Memory Dump for Core 0 after Instruction {line}: {core1.cache_log[-1]}")
-        elif ins[0] == "1":
-            core2.execute(ins, core1, memory, directory)
-            print(f"Cache Memory Dump for Core 1 after Instruction {line}: {core2.cache_log[-1]}")
-        else:
-            print("Invalid instruction")
-            
-    print(instructions)
-    for val in directory.dir.keys():
-        print(f"Directory: {directory.dir[val]}")
+# Modify shared memory using module2
+clear_memory()
+print(inspect_memory())  # Output: [0, 0, 0, 0, 0, ...]
 
-if __name__ == "__main__":
-    main()
+write_memory(1, 1000)
+print(inspect_memory())
