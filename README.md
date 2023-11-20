@@ -1,10 +1,11 @@
 # Directory-based Cache Coherence Simulation
 
 ## Team
-1. Charvi Jindal (2020045)
-2. Chetan (2020046)
-3. Jogith S. Chandran (2020072)
-4. Krishmeet Singh (2020441)
+1. [Charvi Jindal](https://github.com/charvijindal) (2020045)
+2. [Chetan](https://github.com/chetanch31) (2020046)
+3. [Jogith S. Chandran](https://github.com/jogithschan) (2020072)
+4. [Krishmeet Singh](https://github.com/Krishmeet-10) (2020441)
+
 
 ## Instructions
 
