@@ -8,10 +8,10 @@ class CacheSet:
             if self.cache_lines[i] is not None and self.cache_lines[i]['tag'] == tag:
                 self.order.remove(i)
                 self.order.append(i)
-                print("order: ", self.order)
+                # print("order: ", self.order)
                 return i
-        print("find:" ,self.cache_lines)
-        print("order: ", self.order)
+        # print("find:" ,self.cache_lines)
+        # print("order: ", self.order)
         return -1
 
     def update(self, index, tag, data):
@@ -24,8 +24,8 @@ class CacheSet:
             self.order.remove(index)
             self.order.append(index)
         self.cache_lines[index] = {'tag': tag, 'data': data}
-        print("update", self.cache_lines)
-        print("order: ", self.order)
+        # print("update", self.cache_lines)
+        # print("order: ", self.order)
         
 
 class L1Cache:
@@ -41,7 +41,7 @@ class L1Cache:
             else:
                 return cache_set.order[0]
         return 0  # Default to index 0 if order is empty
-
+    
 class L1CacheController:
     def __init__(self, interconnect, num):
         self.cache = L1Cache(2)
@@ -75,7 +75,7 @@ class L1CacheController:
 
             # Update cache with the fetched data using LRU policy
             line_index = self.cache.get_lru_index(cache_set)
-            print("lru addr: ", line_index)
+            # print("lru addr: ", line_index)
             cache_set.update(line_index, tag, data)
             return data
         
@@ -104,6 +104,7 @@ class L1CacheController:
         return data
 
     def getShared(self, addr):
+        count = 0
         line = self.getDirectory(addr)
         state = line['state']
         owner = line['owner']
@@ -111,13 +112,17 @@ class L1CacheController:
         # print(line)
         # self.interconnect.test()
         if state != 2 and owner == self.num:
+            self.interconnect.dir_updates.append(self.interconnect.curr_dir_updates)
             return self.read(addr)
+        
         
         elif state == 2:
             line['state'] = 1
             line['sharer_list'] = [0,0,0,0]
             line['sharer_list'][self.num] = 1
             self.interconnect.set_directoryLine(line, addr)
+            self.interconnect.curr_dir_updates += 1
+            self.interconnect.dir_updates.append(self.interconnect.curr_dir_updates)
             value = self.interconnect.read_from_memory(addr)
             return self.write(addr, value)
             
@@ -126,6 +131,8 @@ class L1CacheController:
             value, from_core = self.interconnect.getValueFromCore(addr, sharer)
             line['sharer_list'][self.num] = 1
             self.interconnect.set_directoryLine(line, addr)
+            self.interconnect.curr_dir_updates += 1
+            self.interconnect.dir_updates.append(self.interconnect.curr_dir_updates)
             return self.write(addr, value)
             
         elif state == 0:
@@ -133,12 +140,16 @@ class L1CacheController:
             line['state'] = 3
             line['sharer_list'][self.num] = 1
             self.interconnect.set_directoryLine(line, addr)
+            self.interconnect.curr_dir_updates += 1
+            self.interconnect.dir_updates.append(self.interconnect.curr_dir_updates)
             return self.write(addr, value)
 
         elif state == 3:
             value,from_core = self.interconnect.getValueFromCore(addr,owner)
             line['sharer_list'][self.num] = 1
             self.interconnect.set_directoryLine(line, addr)
+            self.interconnect.curr_dir_updates += 1
+            self.interconnect.dir_updates.append(self.interconnect.curr_dir_updates)
             return self.write(addr, value)
             
 
@@ -155,6 +166,7 @@ class L1CacheController:
             if immediate is not None:
                 value += immediate
                 self.write(addr, value)
+            self.interconnect.dir_updates.append(self.interconnect.curr_dir_updates)
             return value
         
         else:
@@ -164,6 +176,8 @@ class L1CacheController:
             line['owner'] = self.num
             line['state'] = 0
             self.interconnect.set_directoryLine(line, addr)
+            self.interconnect.curr_dir_updates += 1
+            self.interconnect.dir_updates.append(self.interconnect.curr_dir_updates)
             if immediate is not None:
                 value += immediate
                 self.write(addr, value)
@@ -174,6 +188,15 @@ class L1CacheController:
         line['state'] = 2
         line['sharer_list'] = [0,0,0,0]
         self.interconnect.set_directoryLine(line, addr)
+        self.interconnect.curr_dir_updates += 1
+        self.interconnect.dir_updates.append(self.interconnect.curr_dir_updates)
     
-    
+    def getCacheMemoryDump(self, instruction):
+        # return self.cache.sets
+        curr_cache = []
+        cache_sets = self.cache.sets
+        for i in cache_sets:
+            curr_cache.append([instruction, i.cache_lines])
+
+        return curr_cache
     

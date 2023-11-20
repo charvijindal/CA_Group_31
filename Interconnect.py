@@ -4,6 +4,11 @@ class Interconnect:
     def __init__(self, directory_controller, cores) -> None:
         self.directory_controller = directory_controller
         self.cores = cores
+        self.directory_memory_dump = []
+        self.main_memory_dump = []
+        self.curr_dir_updates = 0
+        self.dir_updates = [0]   
+
         for core in cores:
             core.setInterconnect(self)
 
@@ -29,7 +34,12 @@ class Interconnect:
             value = self.read_from_memory(addr)
             from_core = 0
         return value, from_core
-        
+    
+    def make_directory_dump(self, dump_inst, addr):
+        self.directory_memory_dump.append([dump_inst, self.directory_controller.get_line(addr)])
+    
+    def make_main_memory_dump(self, addr):
+        self.main_memory_dump.append([addr, self.read_from_memory(addr)])
     # def test(self):
     #     return self.cores[1].cache_controller.read(2)
 

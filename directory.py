@@ -5,7 +5,6 @@ class Directory:
 class DirectoryController:
     def __init__(self) -> None:
         self.directory = Directory()
-
     # def get_state(self, addr):
     #     return self.dir[addr]['state']
     
